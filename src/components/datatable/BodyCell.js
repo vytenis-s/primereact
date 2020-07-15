@@ -233,6 +233,7 @@ export class BodyCell extends Component {
                     <button type="button" onClick={this.props.onRowDeleteInit} className="p-link p-row-editor-delete">
                         <span className="p-row-editor-delete-icon pi pi-trash p-clickable"></span>
                     </button>
+                    <Dialog header={this.props.deleteConfirmationHeader} footer={this.confirmationFooter} visible={this.props.deleteConfirming} modal={true} onHide={ this.props.deleteConfirmationHidden }>{this.props.deleteConfirmationMessage}</Dialog>
                     </React.Fragment>
                 );
             }
@@ -264,8 +265,7 @@ export class BodyCell extends Component {
                 rowSpan={this.props.rowSpan} onBlur={this.onBlur}>
                 {header}
                 {editorKeyHelper}
-                {content}
-                <Dialog header={this.props.deleteConfirmationHeader} footer={this.confirmationFooter} visible={this.props.deleteConfirming} modal={true} onHide={ this.props.deleteConfirmationHidden }>{this.props.deleteConfirmationMessage}</Dialog>
+                {content}                
             </td>
         );
     }
