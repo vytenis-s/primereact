@@ -20,6 +20,16 @@ npm install primereact --save
 npm install primeicons --save
 ```
 
+## Build stuff
+
+```
+gulp build-css
+gulp build-exports
+gulp build-resources
+npm login --registry=https://npm.pkg.github.com/
+npm publish
+```
+
 ## Import
 
 ```javascript
