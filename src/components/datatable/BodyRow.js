@@ -3,12 +3,15 @@ import classNames from 'classnames';
 import {BodyCell} from './BodyCell';
 import DomHandler from '../utils/DomHandler';
 
+
+
 export class BodyRow extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            editing: false
+            editing: false,
+            deleteConfirming: false
         };
 
         this.onClick = this.onClick.bind(this);
@@ -22,6 +25,7 @@ export class BodyRow extends Component {
         this.onDrop = this.onDrop.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.onRowEditInit = this.onRowEditInit.bind(this);
+        this.onRowDeleteInit = this.onRowDeleteInit.bind(this);
         this.onRowEditSave = this.onRowEditSave.bind(this);
         this.onRowEditCancel = this.onRowEditCancel.bind(this);
     }
@@ -177,9 +181,24 @@ export class BodyRow extends Component {
         }
 
         this.setState({
+            ...this.state,
             editing: true
         });
 
+        event.preventDefault();
+    }
+
+    onRowDeleteInit(event) { 
+        if (this.props.onRowDeleteInit){
+            this.props.onRowDeleteInit({
+                originalEvent: event,
+                data: this.props.rowData
+            });
+        }
+        this.setState({
+            ...this.state,
+            deleteConfirming: true
+        });
         event.preventDefault();
     }
 
@@ -198,6 +217,7 @@ export class BodyRow extends Component {
         }
 
         this.setState({
+            ...this.state,
             editing: !valid
         });
 
@@ -214,11 +234,30 @@ export class BodyRow extends Component {
         }
 
         this.setState({
+            ...this.state,
             editing: false
         });
 
         event.preventDefault();
     }
+
+    onDeleteConfirm() {
+        this.props.onDeleteConfirm(this.props.rowData);
+        this.setState({
+            ...this.state,
+            deleteConfirming: false
+        });
+    }
+
+    onDeleteCancel(){
+        this.props.onDeleteCancel(this.props.rowData);
+        this.setState({
+            ...this.state,
+            deleteConfirming: false
+        });
+    }
+
+    
 
     render() {
         let columns = React.Children.toArray(this.props.children);
@@ -253,17 +292,23 @@ export class BodyRow extends Component {
 
             let cell = <BodyCell key={i} {...column.props} value={this.props.value} rowSpan={rowSpan} rowData={this.props.rowData} rowIndex={this.props.rowIndex} onRowToggle={this.props.onRowToggle} expanded={this.props.expanded}
                         onRadioClick={this.props.onRadioClick} onCheckboxClick={this.props.onCheckboxClick} responsive={this.props.responsive} selected={this.props.selected}
-                        editMode={this.props.editMode} editing={this.state.editing} onRowEditInit={this.onRowEditInit} onRowEditSave={this.onRowEditSave} onRowEditCancel={this.onRowEditCancel} 
-                        showRowReorderElement={this.props.showRowReorderElement} showSelectionElement={this.props.showSelectionElement}/>;
+                        editMode={this.props.editMode} editing={this.state.editing} onRowDeleteInit={this.onRowDeleteInit} onRowEditInit={this.onRowEditInit} onRowEditSave={this.onRowEditSave} onRowEditCancel={this.onRowEditCancel} 
+                        showRowReorderElement={this.props.showRowReorderElement} onDeleteCancel={ () => { this.onDeleteCancel()} } onDeleteConfirm={ () => {this.onDeleteConfirm()}}
+                        showSelectionElement={this.props.showSelectionElement} deleteConfirming={this.state.deleteConfirming} deleteConfirmationHidden={ () => {this.setState({...this.state,deleteConfirming: false})} }
+                        deleteConfirmationMessage={this.props.deleteConfirmationMessage} deleteConfirmationHeader={this.props.deleteConfirmationHeader}/>;
 
             cells.push(cell);
         }
 
         return (
+            <>
             <tr tabIndex={this.props.selectionMode ? '0' : null} ref={(el) => {this.container = el;}} className={className} onClick={this.onClick} onDoubleClick={this.onDoubleClick} onTouchEnd={this.onTouchEnd} onContextMenu={this.onRightClick} onMouseDown={this.onMouseDown}
-                onDragStart={this.props.onDragStart} onDragEnd={this.onDragEnd} onDragOver={this.onDragOver} onDragLeave={this.onDragLeave} onDrop={this.onDrop} style={style} onKeyDown={this.onKeyDown}>
-                {cells}
-            </tr>
+                onDragStart={this.props.onDragStart} onDragEnd={this.onDragEnd} onDragOver={this.onDragOver} onDragLeave={this.onDragLeave} onDrop={this.onDrop} 
+                style={style} onKeyDown={this.onKeyDown}  >
+                {cells}                                
+            </tr>            
+            </>
+            
         );
     }
 }

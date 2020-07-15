@@ -105,6 +105,7 @@ export class DataTable extends Component {
         onValueChange: null,
         rowEditorValidator: null,
         onRowEditInit: null,
+        onRowDeleteInit: null,
         onRowEditSave: null,
         onRowEditCancel: null,
         exportFunction: null,
@@ -204,6 +205,7 @@ export class DataTable extends Component {
         onValueChange: PropTypes.func,
         rowEditorValidator: PropTypes.func,
         onRowEditInit: PropTypes.func,
+        onRowDeleteInit: PropTypes.func,
         onRowEditSave: PropTypes.func,
         onRowEditCancel: PropTypes.func,
         exportFunction: PropTypes.func,
@@ -1305,8 +1307,9 @@ export class DataTable extends Component {
                         virtualScroll={this.props.virtualScroll} virtualRowHeight={this.props.virtualRowHeight} loading={this.props.loading}
                         groupField={this.props.groupField} rowGroupMode={this.props.rowGroupMode} rowGroupHeaderTemplate={this.props.rowGroupHeaderTemplate} rowGroupFooterTemplate={this.props.rowGroupFooterTemplate}
                         sortField={this.getSortField()} rowClassName={this.props.rowClassName} onRowReorder={this.props.onRowReorder}
-                        editMode={this.props.editMode} rowEditorValidator={this.props.rowEditorValidator} onRowEditInit={this.props.onRowEditInit} onRowEditSave={this.props.onRowEditSave} onRowEditCancel={this.props.onRowEditCancel}
-                        expandableRowGroups={this.props.expandableRowGroups} showRowReorderElement={this.props.showRowReorderElement} showSelectionElement={this.props.showSelectionElement}>
+                        editMode={this.props.editMode} rowEditorValidator={this.props.rowEditorValidator} onRowDeleteInit={this.props.onRowDeleteInit} onRowEditInit={this.props.onRowEditInit} onRowEditSave={this.props.onRowEditSave} onRowEditCancel={this.props.onRowEditCancel}
+                        expandableRowGroups={this.props.expandableRowGroups} showRowReorderElement={this.props.showRowReorderElement} showSelectionElement={this.props.showSelectionElement}
+                        onDeleteConfirm={this.props.onDeleteConfirm} onDeleteCancel={this.props.onDeleteCancel} deleteConfirmationHeader={this.props.deleteConfirmationHeader} deleteConfirmationMessage={this.props.deleteConfirmationMessage}>
                         {columns}
                 </TableBody>;
     }

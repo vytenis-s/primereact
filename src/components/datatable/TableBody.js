@@ -540,8 +540,9 @@ export class TableBody extends Component {
                                         sortField={this.props.sortField} rowGroupMode={this.props.rowGroupMode} groupRowSpan={groupRowSpan}
                                         onDragStart={(e) => this.onRowDragStart(e, i)} onDragEnd={this.onRowDragEnd} onDragOver={(e) => this.onRowDragOver(e, i)} onDragLeave={this.onRowDragLeave}
                                         onDrop={this.onRowDrop} virtualScroll={this.props.virtualScroll} virtualRowHeight={this.props.virtualRowHeight}
-                                        editMode={this.props.editMode} rowEditorValidator={this.props.rowEditorValidator} onRowEditInit={this.props.onRowEditInit} onRowEditSave={this.props.onRowEditSave} onRowEditCancel={this.props.onRowEditCancel}
-                                        showRowReorderElement={this.props.showRowReorderElement} showSelectionElement={this.props.showSelectionElement}>
+                                        editMode={this.props.editMode} rowEditorValidator={this.props.rowEditorValidator} onRowEditInit={this.props.onRowEditInit} onRowDeleteInit={this.props.onRowDeleteInit} onRowEditSave={this.props.onRowEditSave} onRowEditCancel={this.props.onRowEditCancel}
+                                        showRowReorderElement={this.props.showRowReorderElement} showSelectionElement={this.props.showSelectionElement} onDeleteConfirm={this.props.onDeleteConfirm} onDeleteCancel={this.props.onDeleteCancel} deleteConfirmationHeader={this.props.deleteConfirmationHeader}
+                                        deleteConfirmationMessage={this.props.deleteConfirmationMessage}>
                                         {this.props.children}
                                 </BodyRow>
 

@@ -4,6 +4,8 @@ import ObjectUtils from '../utils/ObjectUtils';
 import DomHandler from '../utils/DomHandler';
 import {RowRadioButton} from './RowRadioButton';
 import {RowCheckbox} from './RowCheckbox';
+import { Dialog } from '../dialog/Dialog';
+import { Button } from '../button/Button';
 
 export class BodyCell extends Component {
 
@@ -160,6 +162,13 @@ export class BodyCell extends Component {
         this.unbindDocumentEditListener();
     }
 
+    confirmationFooter = (
+        <div>
+            <Button label="Yes" icon="pi pi-check" onClick={ this.props.onDeleteConfirm } />
+            <Button label="No"  icon="pi pi-times" onClick={ this.props.onDeleteCancel } />
+        </div>
+    )
+
     render() {
         let content, header, editorKeyHelper;
         let cellClassName = classNames(this.props.bodyClassName||this.props.className, {
@@ -217,9 +226,14 @@ export class BodyCell extends Component {
             }
             else {
                 content = (
+                    <React.Fragment>
                     <button type="button" onClick={this.props.onRowEditInit} className="p-row-editor-init p-link">
                         <span className="p-row-editor-init-icon pi pi-fw pi-pencil p-clickable"></span>
                     </button>
+                    <button type="button" onClick={this.props.onRowDeleteInit} className="p-link p-row-editor-delete">
+                        <span className="p-row-editor-delete-icon pi pi-trash p-clickable"></span>
+                    </button>
+                    </React.Fragment>
                 );
             }
         }
@@ -251,6 +265,7 @@ export class BodyCell extends Component {
                 {header}
                 {editorKeyHelper}
                 {content}
+                <Dialog header={this.props.deleteConfirmationHeader} footer={this.confirmationFooter} visible={this.props.deleteConfirming} modal={true} onHide={ this.props.deleteConfirmationHidden }>{this.props.deleteConfirmationMessage}</Dialog>
             </td>
         );
     }

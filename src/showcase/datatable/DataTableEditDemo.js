@@ -32,6 +32,7 @@ export class DataTableEditDemo extends Component {
         this.onRowEditInit = this.onRowEditInit.bind(this);
         this.onRowEditSave = this.onRowEditSave.bind(this);
         this.onRowEditCancel = this.onRowEditCancel.bind(this);
+        this.onRowDeleteInit = this.onRowDeleteInit.bind(this);        
     }
 
     componentDidMount() {
@@ -125,6 +126,21 @@ export class DataTableEditDemo extends Component {
         })
     }
 
+    onRowDeleteInit(event) {
+        this.setState({...this.state, deleteConfirm: true});
+    }
+
+    onDeleteConfirm() {
+        this.setState({...this.state, deleteConfirm: false});
+    }
+
+    onDeleteCancel() {
+        
+        this.setState({...this.state, deleteConfirm: false});
+    }
+
+
+    
     render() {
         return (
             <div>
@@ -153,13 +169,15 @@ export class DataTableEditDemo extends Component {
                     </DataTable>
 
                     <h3>Row Editing</h3>
-                    <DataTable value={this.state.cars2} editMode="row" rowEditorValidator={this.onRowEditorValidator} onRowEditInit={this.onRowEditInit} onRowEditSave={this.onRowEditSave} onRowEditCancel={this.onRowEditCancel}>
+                    <DataTable deleteConfirmationHeader="Confirm" deleteConfirmationMessage="Really delete?" onDeleteConfirm={ (e) => { console.log(e)}} onDeleteCancel={ (e) => { console.log(e) }} 
+                        value={this.state.cars2} editMode="row" rowEditorValidator={this.onRowEditorValidator} onRowDeleteInit={this.onRowDeleteInit} 
+                        onRowEditInit={this.onRowEditInit} onRowEditSave={this.onRowEditSave} onRowEditCancel={this.onRowEditCancel}>
                         <Column field="vin" header="Vin" style={{height: '3.5em'}}/>
                         <Column field="year" header="Year" editor={(props) => this.editorForRowEditing(props, 'year')} style={{height: '3.5em'}}/>
                         <Column field="brand" header="Brand" editor={(props) => this.editorForRowEditing(props, 'brand')} style={{height: '3.5em'}}/>
                         <Column field="color" header="Color" editor={(props) => this.editorForRowEditing(props, 'color')} style={{height: '3.5em'}}/>
                         <Column rowEditor={true} style={{'width': '70px', 'textAlign': 'center'}}></Column>
-                    </DataTable>
+                    </DataTable>                    
                 </div>
 
                 <DataTableEditDemoDoc></DataTableEditDemoDoc>
