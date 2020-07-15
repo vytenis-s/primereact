@@ -23,6 +23,7 @@ npm install primeicons --save
 ## Build stuff
 
 ```
+npm run compile-components
 gulp build-css
 gulp build-exports
 gulp build-resources
