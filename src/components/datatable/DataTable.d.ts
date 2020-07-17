@@ -67,6 +67,8 @@ interface DataTableProps {
     editMode?:string;
     expandableRowGroups?:boolean;
     rowHover?:boolean;
+    deleteConfirmationHeader?: string;
+    deleteConfirmationMessage?: string;
     showSelectionElement?(e: {data: any}): boolean;
     showReorderElement?(e: {data: any}): boolean;
     onSelectionChange?(e: {originalEvent: Event, value: any}): void;
