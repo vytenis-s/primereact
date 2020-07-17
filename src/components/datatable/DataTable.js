@@ -150,6 +150,8 @@ export class DataTable extends Component {
         compareSelectionBy: PropTypes.string,
         dataKey: PropTypes.string,
         metaKeySelection: PropTypes.bool,
+        deleteConfirmationHeader: PropTypes.string,
+        deleteConfirmationMessage: PropTypes.string,
         headerColumnGroup: PropTypes.any,
         footerColumnGroup: PropTypes.any,
         frozenHeaderColumnGroup: PropTypes.any,
@@ -212,7 +214,9 @@ export class DataTable extends Component {
         customSaveState: PropTypes.func,
         customRestoreState: PropTypes.func,
         onStateSave: PropTypes.func,
-        onStateRestore: PropTypes.func
+        onStateRestore: PropTypes.func,
+        onDeleteConfirm: PropTypes.func,
+        onRowEditCancel: PropTypes.func
     };
 
     constructor(props) {

@@ -100,6 +100,8 @@ interface DataTableProps {
     customRestoreState?(): any;
     onStateSave?(state: any): void;
     onStateRestore?(state: any): void;
+    onDeleteConfirm?(itm: any): void;
+    onDeleteCancel?(itm: any): void;
 }
 
 export class DataTable extends React.Component<DataTableProps,any> {
