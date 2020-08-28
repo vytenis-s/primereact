@@ -8,6 +8,7 @@ interface DialogProps {
     position?: string;
     modal?: boolean;
     contentStyle?: object;
+    contentClassName?: string;
     closeOnEscape?: boolean;
     dismissableMask?: boolean;
     rtl?: boolean;
@@ -23,7 +24,7 @@ interface DialogProps {
     ariaCloseIconLabel?: string;
     focusOnShow?: boolean;
     maximized?: boolean;
-    iconsTemplate?: any;
+    icons?: ((props: object) => any | any);
     onMaximize?(e: {originalEvent: Event, maximized: boolean}): void;
     onHide(): void;
     onShow?(): void;

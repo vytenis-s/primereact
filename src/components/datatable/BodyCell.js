@@ -6,6 +6,7 @@ import {RowRadioButton} from './RowRadioButton';
 import {RowCheckbox} from './RowCheckbox';
 import { Dialog } from '../dialog/Dialog';
 import { Button } from '../button/Button';
+import { Ripple } from '../ripple/Ripple';
 
 export class BodyCell extends Component {
 
@@ -52,6 +53,10 @@ export class BodyCell extends Component {
             if (this.props.editor && !this.state.editing) {
                 this.setState({
                     editing: true
+                }, () => {
+                    if (this.props.onEditorInit) {
+                        this.props.onEditorInit(this.props);
+                    }
                 });
 
                 if (this.props.editorValidatorEvent === 'click') {
@@ -99,22 +104,20 @@ export class BodyCell extends Component {
     }
 
     switchCellToViewMode(submit) {
-        if (this.props.editorValidator && submit) {
-            let valid = this.props.editorValidator(this.props);
-            if (valid) {
-                if (this.props.onEditorSubmit) {
-                    this.props.onEditorSubmit(this.props)
-                }
-                this.closeCell();
-            } // as per previous version if not valid and another editor is open, keep invalid data editor open.
+        if (!submit && this.props.onEditorCancel) {
+            this.props.onEditorCancel(this.props);
         }
-        else {
+
+        let valid = true;
+        if (this.props.editorValidator) {
+            valid = this.props.editorValidator(this.props);
+        }
+
+        if (valid) {
             if (submit && this.props.onEditorSubmit) {
-                this.props.onEditorSubmit(this.props)
+                this.props.onEditorSubmit(this.props);
             }
-            else if (this.props.onEditorCancel) {
-                this.props.onEditorCancel(this.props);
-            }
+
             this.closeCell();
         }
     }
@@ -182,6 +185,7 @@ export class BodyCell extends Component {
             content = (
                 <button type="button" onClick={this.onExpanderClick} className="p-row-toggler p-link">
                     <span className={iconClassName}></span>
+                    <Ripple />
                 </button>
             );
         }
@@ -214,14 +218,16 @@ export class BodyCell extends Component {
         else if (this.props.rowEditor) {
             if (this.state.editing) {
                 content = (
-                    <React.Fragment>
+                    <>
                         <button type="button" onClick={this.props.onRowEditSave} className="p-row-editor-save p-link">
                             <span className="p-row-editor-save-icon pi pi-fw pi-check p-clickable"></span>
+                            <Ripple />
                         </button>
                         <button type="button" onClick={this.props.onRowEditCancel} className="p-row-editor-cancel p-link">
                             <span className="p-row-editor-cancel-icon pi pi-fw pi-times p-clickable"></span>
+                            <Ripple />
                         </button>
-                    </React.Fragment>
+                    </>
                 );
             }
             else {
@@ -229,6 +235,7 @@ export class BodyCell extends Component {
                     <React.Fragment>
                     <button type="button" onClick={this.props.onRowEditInit} className="p-row-editor-init p-link">
                         <span className="p-row-editor-init-icon pi pi-fw pi-pencil p-clickable"></span>
+                        <Ripple />
                     </button>
                     <button type="button" onClick={this.props.onRowDeleteInit} className="p-link p-row-editor-delete">
                         <span className="p-row-editor-delete-icon pi pi-trash p-clickable"></span>
@@ -258,10 +265,6 @@ export class BodyCell extends Component {
                 else
                     content = ObjectUtils.resolveFieldData(this.props.rowData, this.props.field);
             }
-        }
-
-        if (this.props.responsive) {
-            header = <span className="p-column-title">{this.props.header}</span>;
         }
 
         if (this.props.editMode !== 'row') {

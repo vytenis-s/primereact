@@ -38,9 +38,10 @@ interface ColumnProps {
     rowDeleter?: boolean;
     exportable?: boolean;
     reorderable?: boolean;
+    excludeGlobalFilter?: boolean;
+    onEditorInit?(props: any): void;
     onEditorSubmit?(props: any): void;
     onEditorCancel?(props: any): void;
-    excludeGlobalFilter?: boolean;
     sortFunction?(e: {field: string, order: number}): void;
     filterFunction?(value: any, filter: any): void;
     editor?(props: any): JSX.Element | undefined;

@@ -18,6 +18,7 @@ export class ListBox extends Component {
         itemTemplate: null,
         style: null,
         listStyle: null,
+        listClassName: null,
         className: null,
         disabled: null,
         dataKey: null,
@@ -44,6 +45,7 @@ export class ListBox extends Component {
         itemTemplate: PropTypes.func,
         style: PropTypes.object,
         listStyle: PropTypes.object,
+        listClassName: PropTypes.string,
         className: PropTypes.string,
         dataKey: PropTypes.string,
         multiple: PropTypes.bool,
@@ -60,8 +62,9 @@ export class ListBox extends Component {
         onChange: PropTypes.func
     };
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+
         this.state = {
             filter: ''
         }
@@ -263,9 +266,10 @@ export class ListBox extends Component {
     }
 
     render() {
-        let className = classNames('p-listbox p-inputtext p-component', this.props.className, {
+        let className = classNames('p-listbox p-component', {
             'p-disabled': this.props.disabled
-        });
+        }, this.props.className);
+        let listClassName = classNames('p-listbox-list-wrapper', this.props.listClassName);
         let items = this.props.options;
         let header;
 
@@ -294,7 +298,7 @@ export class ListBox extends Component {
         return (
             <div ref={(el) => this.element = el} id={this.props.id} className={className} style={this.props.style}>
                 {header}
-                <div className="p-listbox-list-wrapper" style={this.props.listStyle}>
+                <div className={listClassName} style={this.props.listStyle}>
                     <ul className="p-listbox-list" role="listbox" aria-multiselectable={this.props.multiple}>
                         {items}
                     </ul>
