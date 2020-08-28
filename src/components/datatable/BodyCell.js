@@ -164,8 +164,8 @@ export class BodyCell extends Component {
 
     confirmationFooter = (
         <div>
-            <Button label="Yes" icon="pi pi-check" onClick={ this.props.onDeleteConfirm } />
-            <Button label="No"  icon="pi pi-times" onClick={ this.props.onDeleteCancel } />
+            <Button label={this.props.deleteYesLabel} icon="pi pi-check" onClick={ this.props.onDeleteConfirm } />
+            <Button label={this.props.deleteNoLabel}  icon="pi pi-times" onClick={ this.props.onDeleteCancel } />
         </div>
     )
 
@@ -237,6 +237,16 @@ export class BodyCell extends Component {
                     </React.Fragment>
                 );
             }
+        }
+        else if (this.props.rowDeleter) {
+            content = (
+                <React.Fragment>
+                    <button type="button" onClick={this.props.onRowDeleteInit} className="p-link p-row-editor-delete">
+                        <span className="p-row-editor-delete-icon pi pi-trash p-clickable"></span>
+                    </button>
+                    <Dialog header={this.props.deleteConfirmationHeader} footer={this.confirmationFooter} visible={this.props.deleteConfirming} modal={true} onHide={ this.props.deleteConfirmationHidden }>{this.props.deleteConfirmationMessage}</Dialog>                    
+                </React.Fragment>
+            )
         }
         else {
             if (this.state.editing && this.props.editor) {

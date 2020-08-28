@@ -177,7 +177,18 @@ export class DataTableEditDemo extends Component {
                         <Column field="brand" header="Brand" editor={(props) => this.editorForRowEditing(props, 'brand')} style={{height: '3.5em'}}/>
                         <Column field="color" header="Color" editor={(props) => this.editorForRowEditing(props, 'color')} style={{height: '3.5em'}}/>
                         <Column rowEditor={true} style={{'width': '70px', 'textAlign': 'center'}}></Column>
-                    </DataTable>                    
+                    </DataTable>         
+
+                    <h3> Row deleting</h3>
+                    <DataTable deleteConfirmationHeader="Confirm" deleteConfirmationMessage="Really delete?" onDeleteConfirm={ (e) => { console.log(e)}} onDeleteCancel={ (e) => { console.log(e) }} 
+                        value={this.state.cars2} editMode="row" onRowDeleteInit={this.onRowDeleteInit} 
+                    >
+                        <Column field="vin" header="Vin" style={{height: '3.5em'}}/>
+                        <Column field="year" header="Year" editor={(props) => this.editorForRowEditing(props, 'year')} style={{height: '3.5em'}}/>
+                        <Column field="brand" header="Brand" editor={(props) => this.editorForRowEditing(props, 'brand')} style={{height: '3.5em'}}/>
+                        <Column field="color" header="Color" editor={(props) => this.editorForRowEditing(props, 'color')} style={{height: '3.5em'}}/>
+                        <Column rowDeleter={true} style={{'width': '70px', 'textAlign': 'center'}} deleteYesLabel="Taip" deleteNoLabel="Ne"></Column>
+                    </DataTable>         
                 </div>
 
                 <DataTableEditDemoDoc></DataTableEditDemoDoc>

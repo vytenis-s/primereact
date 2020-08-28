@@ -45,8 +45,11 @@ export class Column extends Component {
         rowReorder: false,
         rowReorderIcon: 'pi pi-bars',
         rowEditor: false,
+        rowDeleter: false,
         exportable: true,
-        reorderable: true
+        reorderable: true,
+        deleteYesLabel: "Yes",
+        deleteNoLabel: "No"
     }
 
     static propTypes = {
@@ -91,7 +94,10 @@ export class Column extends Component {
         rowReorder: PropTypes.bool,
         rowReorderIcon: PropTypes.string,
         rowEditor: PropTypes.bool,
+        rowDeleter: PropTypes.bool,
         exportable: PropTypes.bool,
-        reorderable: PropTypes.bool
+        reorderable: PropTypes.bool,
+        deleteYesLabel: PropTypes.string,
+        deleteNoLabel: PropTypes.string
     }
 }

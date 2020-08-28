@@ -27,6 +27,7 @@ npm run compile-components
 gulp build-css
 gulp build-exports
 gulp build-resources
+npm pack
 npm login --registry=https://npm.pkg.github.com/
 npm publish
 ```

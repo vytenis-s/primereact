@@ -215,8 +215,7 @@ export class DataTable extends Component {
         customRestoreState: PropTypes.func,
         onStateSave: PropTypes.func,
         onStateRestore: PropTypes.func,
-        onDeleteConfirm: PropTypes.func,
-        onRowEditCancel: PropTypes.func
+        onDeleteConfirm: PropTypes.func
     };
 
     constructor(props) {

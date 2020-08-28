@@ -35,6 +35,7 @@ interface ColumnProps {
     rowReorderIcon?: string;
     editorValidatorEvent?: string;
     rowEditor?: boolean;
+    rowDeleter?: boolean;
     exportable?: boolean;
     reorderable?: boolean;
     onEditorSubmit?(props: any): void;
@@ -44,6 +45,8 @@ interface ColumnProps {
     filterFunction?(value: any, filter: any): void;
     editor?(props: any): JSX.Element | undefined;
     editorValidator?(props: any): boolean;
+    deleteYesLabel?: string;
+    deleteNoLabel?: string;
 }
 
 export class Column extends React.Component<ColumnProps,any> {}
