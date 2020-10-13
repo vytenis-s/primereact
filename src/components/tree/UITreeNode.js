@@ -164,6 +164,10 @@ export class UITreeNode extends Component {
 
         const nodeElement = event.target.parentElement;
 
+        if (!DomHandler.hasClass(nodeElement, 'p-treenode')) {
+            return;
+        }
+
         switch (event.which) {
             //down arrow
             case 40:

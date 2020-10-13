@@ -5,6 +5,8 @@ import classNames from 'classnames';
 import DomHandler from '../utils/DomHandler';
 import {TieredMenuSub} from './TieredMenuSub';
 import { CSSTransition } from 'react-transition-group';
+import UniqueComponentId from '../utils/UniqueComponentId';
+import ConnectedOverlayScrollHandler from '../utils/ConnectedOverlayScrollHandler';
 
 export class TieredMenu extends Component {
 
@@ -44,6 +46,8 @@ export class TieredMenu extends Component {
         this.onEnter = this.onEnter.bind(this);
         this.onEntered = this.onEntered.bind(this);
         this.onExit = this.onExit.bind(this);
+
+        this.id = this.props.id || UniqueComponentId();
     }
 
     toggle(event) {
@@ -84,11 +88,13 @@ export class TieredMenu extends Component {
 
     onEntered() {
         this.bindDocumentListeners();
+        this.bindScrollListener();
     }
 
     onExit() {
         this.target = null;
         this.unbindDocumentListeners();
+        this.unbindScrollListener();
     }
 
     bindDocumentListeners() {
@@ -139,8 +145,30 @@ export class TieredMenu extends Component {
         }
     }
 
+    bindScrollListener() {
+        if (!this.scrollHandler) {
+            this.scrollHandler = new ConnectedOverlayScrollHandler(this.target, (event) => {
+                if (this.state.visible) {
+                    this.hide(event);
+                }
+            });
+        }
+
+        this.scrollHandler.bindScrollListener();
+    }
+
+    unbindScrollListener() {
+        if (this.scrollHandler) {
+            this.scrollHandler.unbindScrollListener();
+        }
+    }
+
     componentWillUnmount() {
         this.unbindDocumentListeners();
+        if (this.scrollHandler) {
+            this.scrollHandler.destroy();
+            this.scrollHandler = null;
+        }
     }
 
     renderElement() {
@@ -149,7 +177,7 @@ export class TieredMenu extends Component {
         return (
             <CSSTransition classNames="p-connected-overlay" in={this.state.visible} timeout={{ enter: 120, exit: 100 }}
                 unmountOnExit onEnter={this.onEnter} onEntered={this.onEntered} onExit={this.onExit}>
-                <div ref={el => this.container = el} id={this.props.id} className={className} style={this.props.style}>
+                <div ref={el => this.container = el} id={this.id} className={className} style={this.props.style}>
                     <TieredMenuSub model={this.props.model} root popup={this.props.popup} />
                 </div>
             </CSSTransition>

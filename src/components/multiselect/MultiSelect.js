@@ -9,6 +9,8 @@ import ObjectUtils from '../utils/ObjectUtils';
 import { MultiSelectHeader } from './MultiSelectHeader';
 import { MultiSelectItem } from './MultiSelectItem';
 import { MultiSelectPanel } from './MultiSelectPanel';
+import UniqueComponentId from '../utils/UniqueComponentId';
+import ConnectedOverlayScrollHandler from '../utils/ConnectedOverlayScrollHandler';
 
 export class MultiSelect extends Component {
 
@@ -21,6 +23,8 @@ export class MultiSelect extends Component {
         optionValue: null,
         style: null,
         className: null,
+        panelClassName: null,
+        panelStyle: null,
         scrollHeight: '200px',
         placeholder: null,
         fixedPlaceholder: false,
@@ -30,6 +34,8 @@ export class MultiSelect extends Component {
         filterMatchMode: 'contains',
         filterPlaceholder: null,
         filterLocale: undefined,
+        emptyFilterMessage: 'No results found',
+        resetFilterOnHide: false,
         tabIndex: '0',
         dataKey: null,
         inputId: null,
@@ -56,6 +62,8 @@ export class MultiSelect extends Component {
         optionValue: PropTypes.string,
         style: PropTypes.object,
         className: PropTypes.string,
+        panelClassName: PropTypes.string,
+        panelStyle: PropTypes.object,
         scrollHeight: PropTypes.string,
         placeholder: PropTypes.string,
         fixedPlaceholder: PropTypes.bool,
@@ -65,6 +73,8 @@ export class MultiSelect extends Component {
         filterMatchMode: PropTypes.string,
         filterPlaceholder: PropTypes.string,
         filterLocale: PropTypes.string,
+        emptyFilterMessage: PropTypes.any,
+        resetFilterOnHide: PropTypes.bool,
         tabIndex: PropTypes.string,
         dataKey: PropTypes.string,
         inputId: PropTypes.string,
@@ -91,6 +101,7 @@ export class MultiSelect extends Component {
         };
 
         this.onClick = this.onClick.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
         this.onOptionClick = this.onOptionClick.bind(this);
         this.onOptionKeyDown = this.onOptionKeyDown.bind(this);
         this.onFocus = this.onFocus.bind(this);
@@ -101,6 +112,9 @@ export class MultiSelect extends Component {
         this.onOverlayEnter = this.onOverlayEnter.bind(this);
         this.onOverlayEntered = this.onOverlayEntered.bind(this);
         this.onOverlayExit = this.onOverlayExit.bind(this);
+        this.onOverlayExited = this.onOverlayExited.bind(this);
+
+        this.id = this.props.id || UniqueComponentId();
     }
 
     onOptionClick(event) {
@@ -117,9 +131,10 @@ export class MultiSelect extends Component {
     }
 
     onOptionKeyDown(event) {
-        let listItem = event.originalEvent.currentTarget;
+        const originalEvent = event.originalEvent;
+        let listItem = originalEvent.currentTarget;
 
-        switch(event.originalEvent.which) {
+        switch(originalEvent.which) {
             //down
             case 40:
                 var nextItem = this.findNextItem(listItem);
@@ -127,7 +142,7 @@ export class MultiSelect extends Component {
                     nextItem.focus();
                 }
 
-                event.originalEvent.preventDefault();
+                originalEvent.preventDefault();
             break;
 
             //up
@@ -137,13 +152,20 @@ export class MultiSelect extends Component {
                     prevItem.focus();
                 }
 
-                event.originalEvent.preventDefault();
+                originalEvent.preventDefault();
             break;
 
-            //enter
+            //enter and space
             case 13:
+            case 32:
                 this.onOptionClick(event);
-                event.originalEvent.preventDefault();
+                originalEvent.preventDefault();
+            break;
+
+            //escape
+            case 27:
+                this.hide();
+                this.focusInput.focus();
             break;
 
             default:
@@ -175,9 +197,38 @@ export class MultiSelect extends Component {
                 this.hide();
             }
             else {
-                this.focusInput.focus();
                 this.show();
             }
+
+            this.focusInput.focus();
+        }
+    }
+
+    onKeyDown(event){
+        switch(event.which) {
+            //down
+            case 40:
+                if (!this.state.overlayVisible && event.altKey) {
+                    this.show();
+                    event.preventDefault();
+                }
+            break;
+
+            //space
+            case 32:
+                if (!this.state.overlayVisible){
+                    this.show();
+                    event.preventDefault();
+                }
+            break;
+
+            //escape
+            case 27:
+                this.hide();
+            break;
+
+            default:
+            break;
         }
     }
 
@@ -209,7 +260,7 @@ export class MultiSelect extends Component {
                 preventDefault : () =>{},
                 target: {
                     name: this.props.name,
-                    id: this.props.id,
+                    id: this.id,
                     value: value
                 }
             });
@@ -218,6 +269,10 @@ export class MultiSelect extends Component {
 
     onFilter(event) {
         this.setState({ filter: event.query });
+    }
+
+    resetFilter() {
+        this.setState({ filter: '' });
     }
 
     show() {
@@ -235,10 +290,20 @@ export class MultiSelect extends Component {
 
     onOverlayEntered() {
         this.bindDocumentClickListener();
+        this.bindScrollListener();
+        this.bindResizeListener();
     }
 
     onOverlayExit() {
         this.unbindDocumentClickListener();
+        this.unbindScrollListener();
+        this.unbindResizeListener();
+    }
+
+    onOverlayExited() {
+        if (this.props.filter && this.props.resetFilterOnHide) {
+            this.resetFilter();
+        }
     }
 
     alignPanel() {
@@ -254,6 +319,7 @@ export class MultiSelect extends Component {
 
     onCloseClick(event) {
         this.hide();
+        this.focusInput.focus();
         event.preventDefault();
         event.stopPropagation();
     }
@@ -325,6 +391,42 @@ export class MultiSelect extends Component {
         }
     }
 
+    bindScrollListener() {
+        if (!this.scrollHandler) {
+            this.scrollHandler = new ConnectedOverlayScrollHandler(this.container, () => {
+                if (this.state.overlayVisible) {
+                    this.hide();
+                }
+            });
+        }
+
+        this.scrollHandler.bindScrollListener();
+    }
+
+    unbindScrollListener() {
+        if (this.scrollHandler) {
+            this.scrollHandler.unbindScrollListener();
+        }
+    }
+
+    bindResizeListener() {
+        if (!this.resizeListener) {
+            this.resizeListener = () => {
+                if (this.state.overlayVisible) {
+                    this.hide();
+                }
+            };
+            window.addEventListener('resize', this.resizeListener);
+        }
+    }
+
+    unbindResizeListener() {
+        if (this.resizeListener) {
+            window.removeEventListener('resize', this.resizeListener);
+            this.resizeListener = null;
+        }
+    }
+
     isOutsideClicked(event) {
         return this.container && !(this.container.isSameNode(event.target) || this.container.contains(event.target)
             || (this.panel && this.panel.element && this.panel.element.contains(event.target)));
@@ -358,6 +460,11 @@ export class MultiSelect extends Component {
 
     componentWillUnmount() {
         this.unbindDocumentClickListener();
+        this.unbindResizeListener();
+        if (this.scrollHandler) {
+            this.scrollHandler.destroy();
+            this.scrollHandler = null;
+        }
 
         if (this.tooltip) {
             this.tooltip.destroy();
@@ -377,17 +484,19 @@ export class MultiSelect extends Component {
     }
 
     filterOptions(options) {
-        let filterValue = this.state.filter.trim().toLocaleLowerCase(this.props.filterLocale);
-        let searchFields = this.props.filterBy ? this.props.filterBy.split(',') : [this.props.optionLabel || 'label'];
-        return FilterUtils.filter(options, searchFields, filterValue, this.props.filterMatchMode, this.props.filterLocale);
+        if (options) {
+            let filterValue = this.state.filter.trim().toLocaleLowerCase(this.props.filterLocale);
+            let searchFields = this.props.filterBy ? this.props.filterBy.split(',') : [this.props.optionLabel || 'label'];
+            return FilterUtils.filter(options, searchFields, filterValue, this.props.filterMatchMode, this.props.filterLocale);
+        }
     }
 
     getOptionLabel(option) {
-        return this.props.optionLabel ? ObjectUtils.resolveFieldData(option, this.props.optionLabel) : (option['label'] !== undefined ? option['label'] : option);
+        return this.props.optionLabel ? ObjectUtils.resolveFieldData(option, this.props.optionLabel) : (option && option['label'] !== undefined ? option['label'] : option);
     }
 
     getOptionValue(option) {
-        return this.props.optionValue ? ObjectUtils.resolveFieldData(option, this.props.optionValue) : (option['value'] !== undefined ? option['value'] : option);
+        return this.props.optionValue ? ObjectUtils.resolveFieldData(option, this.props.optionValue) : (option && option['value'] !== undefined ? option['value'] : option);
     }
 
     isEmpty() {
@@ -499,7 +608,7 @@ export class MultiSelect extends Component {
     }
 
     render() {
-        let className = classNames('p-multiselect p-component', {
+        let className = classNames('p-multiselect p-component p-inputwrapper', {
             'p-disabled': this.props.disabled,
             'p-focus': this.state.focused,
             'p-inputwrapper-filled': this.props.value && this.props.value.length > 0,
@@ -508,12 +617,13 @@ export class MultiSelect extends Component {
         let label = this.renderLabel();
         let hiddenSelect = this.renderHiddenSelect();
         let items = this.props.options;
+        const hasFilter = this.hasFilter();
 
-        if (items) {
-            if (this.hasFilter()) {
-                items = this.filterOptions(items);
-            }
+        if (hasFilter) {
+            items = this.filterOptions(items);
+        }
 
+        if (items && items.length) {
             items = items.map((option, index) => {
                 let optionLabel = this.getOptionLabel(option);
 
@@ -523,24 +633,32 @@ export class MultiSelect extends Component {
                 );
             });
         }
+        else if (hasFilter) {
+            const emptyFilterMessage = ObjectUtils.getJSXElement(this.props.emptyFilterMessage, this.props);
+            items = (
+                <li className="p-multiselect-empty-message">
+                    {emptyFilterMessage}
+                </li>
+            );
+        }
 
         let header = this.renderHeader(items);
 
         return (
-            <div id={this.props.id} className={className} onClick={this.onClick} ref={el => this.container = el} style={this.props.style}>
+            <div id={this.id} className={className} onClick={this.onClick} ref={el => this.container = el} style={this.props.style}>
                 {hiddenSelect}
                 <div className="p-hidden-accessible">
-                    <input readOnly type="text" onFocus={this.onFocus} onBlur={this.onBlur} ref={el => this.focusInput = el} aria-haspopup="listbox"
-                           aria-labelledby={this.props.ariaLabelledBy} id={this.props.inputId} />
+                    <input ref={el => this.focusInput = el} id={this.props.inputId} readOnly type="text" onFocus={this.onFocus} onBlur={this.onBlur} onKeyDown={this.onKeyDown}
+                        role="listbox" aria-haspopup="listbox" aria-labelledby={this.props.ariaLabelledBy} aria-expanded={this.state.overlayVisible} disabled={this.props.disabled} tabIndex={this.props.tabIndex} />
                 </div>
                 {label}
                 <div className="p-multiselect-trigger">
                     <span className="p-multiselect-trigger-icon pi pi-chevron-down p-c"></span>
                 </div>
                 <CSSTransition classNames="p-connected-overlay" in={this.state.overlayVisible} timeout={{ enter: 120, exit: 100 }}
-                    unmountOnExit onEnter={this.onOverlayEnter} onEntered={this.onOverlayEntered} onExit={this.onOverlayExit}>
+                    unmountOnExit onEnter={this.onOverlayEnter} onEntered={this.onOverlayEntered} onExit={this.onOverlayExit} onExited={this.onOverlayExited}>
                     <MultiSelectPanel ref={el => this.panel = el} header={header} appendTo={this.props.appendTo}
-                        scrollHeight={this.props.scrollHeight}>
+                        scrollHeight={this.props.scrollHeight} panelClassName={this.props.panelClassName} panelStyle={this.props.panelStyle}>
                         {items}
                     </MultiSelectPanel>
                 </CSSTransition>

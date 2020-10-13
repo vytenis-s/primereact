@@ -8,6 +8,8 @@ import { DropdownPanel } from './DropdownPanel';
 import { DropdownItem } from './DropdownItem';
 import {tip} from "../tooltip/Tooltip";
 import { CSSTransition } from 'react-transition-group';
+import UniqueComponentId from '../utils/UniqueComponentId';
+import ConnectedOverlayScrollHandler from '../utils/ConnectedOverlayScrollHandler';
 
 export class Dropdown extends Component {
 
@@ -28,6 +30,7 @@ export class Dropdown extends Component {
         filterMatchMode: 'contains',
         filterPlaceholder: null,
         filterLocale: undefined,
+        emptyFilterMessage: 'No results found',
         editable: false,
         placeholder:null,
         required: false,
@@ -36,6 +39,7 @@ export class Dropdown extends Component {
         tabIndex: null,
         autoFocus: false,
         filterInputAutoFocus: true,
+        resetFilterOnHide: false,
         panelClassName: null,
         panelStyle: null,
         dataKey: null,
@@ -70,6 +74,7 @@ export class Dropdown extends Component {
         filterMatchMode: PropTypes.string,
         filterPlaceholder: PropTypes.string,
         filterLocale: PropTypes.string,
+        emptyFilterMessage: PropTypes.any,
         editable:PropTypes.bool,
         placeholder: PropTypes.string,
         required: PropTypes.bool,
@@ -78,6 +83,7 @@ export class Dropdown extends Component {
         tabIndex: PropTypes.number,
         autoFocus: PropTypes.bool,
         filterInputAutoFocus: PropTypes.bool,
+        resetFilterOnHide: PropTypes.bool,
         lazy: PropTypes.bool,
         panelClassName: PropTypes.string,
         panelStyle: PropTypes.object,
@@ -118,7 +124,10 @@ export class Dropdown extends Component {
         this.onOverlayEnter = this.onOverlayEnter.bind(this);
         this.onOverlayEntered = this.onOverlayEntered.bind(this);
         this.onOverlayExit = this.onOverlayExit.bind(this);
+        this.onOverlayExited = this.onOverlayExited.bind(this);
         this.clear = this.clear.bind(this);
+
+        this.id = this.props.id || UniqueComponentId();
     }
 
     onClick(event) {
@@ -364,7 +373,7 @@ export class Dropdown extends Component {
             preventDefault : () =>{},
             target: {
                 name: this.props.name,
-                id: this.props.id,
+                id: this.id,
                 value : event.target.value,
             }
         });
@@ -410,7 +419,7 @@ export class Dropdown extends Component {
             preventDefault : () =>{},
             target: {
                 name: this.props.name,
-                id: this.props.id,
+                id: this.id,
                 value : null
             }
         });
@@ -432,7 +441,7 @@ export class Dropdown extends Component {
                 preventDefault : () =>{},
                 target: {
                     name: this.props.name,
-                    id: this.props.id,
+                    id: this.id,
                     value: optionValue
                 }
             });
@@ -475,6 +484,8 @@ export class Dropdown extends Component {
     onOverlayEntered() {
         this.scrollInView();
         this.bindDocumentClickListener();
+        this.bindScrollListener();
+        this.bindResizeListener();
 
         if (this.props.filter && this.props.filterInputAutoFocus) {
             this.filterInput.focus();
@@ -483,6 +494,14 @@ export class Dropdown extends Component {
 
     onOverlayExit() {
         this.unbindDocumentClickListener();
+        this.unbindScrollListener();
+        this.unbindResizeListener();
+    }
+
+    onOverlayExited() {
+        if (this.props.filter && this.props.resetFilterOnHide) {
+            this.resetFilter();
+        }
     }
 
     alignPanel() {
@@ -522,6 +541,42 @@ export class Dropdown extends Component {
         }
     }
 
+    bindScrollListener() {
+        if (!this.scrollHandler) {
+            this.scrollHandler = new ConnectedOverlayScrollHandler(this.container, () => {
+                if (this.state.overlayVisible) {
+                    this.hideOverlay();
+                }
+            });
+        }
+
+        this.scrollHandler.bindScrollListener();
+    }
+
+    unbindScrollListener() {
+        if (this.scrollHandler) {
+            this.scrollHandler.unbindScrollListener();
+        }
+    }
+
+    bindResizeListener() {
+        if (!this.resizeListener) {
+            this.resizeListener = () => {
+                if (this.state.overlayVisible) {
+                    this.hideOverlay();
+                }
+            };
+            window.addEventListener('resize', this.resizeListener);
+        }
+    }
+
+    unbindResizeListener() {
+        if (this.resizeListener) {
+            window.removeEventListener('resize', this.resizeListener);
+            this.resizeListener = null;
+        }
+    }
+
     isOutsideClicked(event) {
         return this.container && !(this.container.isSameNode(event.target) || this.isClearClicked(event) || this.container.contains(event.target)
             || (this.panel && this.panel.element && this.panel.element.contains(event.target)));
@@ -550,7 +605,7 @@ export class Dropdown extends Component {
     }
 
     getOptionKey(option, index) {
-        return this.props.dataKey ? ObjectUtils.resolveFieldData(option, this.props.dataKey) : `pr_id__${this.getOptionLabel}-${index}`;
+        return this.props.dataKey ? ObjectUtils.resolveFieldData(option, this.props.dataKey) : `pr_id__${this.getOptionLabel(option)}-${index}`;
     }
 
     checkValidity() {
@@ -589,6 +644,11 @@ export class Dropdown extends Component {
 
     componentWillUnmount() {
         this.unbindDocumentClickListener();
+        this.unbindResizeListener();
+        if (this.scrollHandler) {
+            this.scrollHandler.destroy();
+            this.scrollHandler = null;
+        }
 
         if (this.tooltip) {
             this.tooltip.destroy();
@@ -607,7 +667,9 @@ export class Dropdown extends Component {
                 this.alignPanel();
             }
 
-            this.scrollInView();
+            if (prevProps.value !== this.props.value) {
+                this.scrollInView();
+            }
         }
 
         if (prevProps.tooltip !== this.props.tooltip) {
@@ -695,9 +757,9 @@ export class Dropdown extends Component {
     }
 
     renderItems(selectedOption) {
-        let visibleOptions = this.getVisibleOptions()
+        let visibleOptions = this.getVisibleOptions();
 
-        if (visibleOptions) {
+        if (visibleOptions && visibleOptions.length) {
             return visibleOptions.map((option, index) => {
                 let optionLabel = this.getOptionLabel(option);
                 let optionKey = this.getOptionKey(option, index);
@@ -706,6 +768,15 @@ export class Dropdown extends Component {
                     <DropdownItem key={optionKey} label={optionLabel} option={option} template={this.props.itemTemplate} selected={selectedOption === option} disabled={option.disabled} onClick={this.onOptionClick} />
                 );
             });
+        }
+
+        if (this.hasFilter()) {
+            const emptyFilterMessage = ObjectUtils.getJSXElement(this.props.emptyFilterMessage, this.props);
+            return (
+                <li className="p-dropdown-empty-message">
+                    {emptyFilterMessage}
+                </li>
+            );
         }
 
         return null;
@@ -728,7 +799,7 @@ export class Dropdown extends Component {
     }
 
     render() {
-        let className = classNames('p-dropdown p-component', this.props.className, {
+        let className = classNames('p-dropdown p-component p-inputwrapper', this.props.className, {
             'p-disabled': this.props.disabled,
             'p-focus': this.state.focused,
             'p-dropdown-clearable': this.props.showClear && !this.props.disabled,
@@ -746,7 +817,7 @@ export class Dropdown extends Component {
         let clearIcon = this.renderClearIcon();
 
         return (
-            <div id={this.props.id} ref={(el) => this.container = el} className={className} style={this.props.style} onClick={this.onClick}
+            <div id={this.id} ref={(el) => this.container = el} className={className} style={this.props.style} onClick={this.onClick}
                  onMouseDown={this.props.onMouseDown} onContextMenu={this.props.onContextMenu}>
                  {keyboardHelper}
                  {hiddenSelect}
@@ -754,7 +825,7 @@ export class Dropdown extends Component {
                  {clearIcon}
                  {dropdownIcon}
                  <CSSTransition classNames="p-connected-overlay" in={this.state.overlayVisible} timeout={{ enter: 120, exit: 100 }}
-                    unmountOnExit onEnter={this.onOverlayEnter} onEntered={this.onOverlayEntered} onExit={this.onOverlayExit}>
+                    unmountOnExit onEnter={this.onOverlayEnter} onEntered={this.onOverlayEntered} onExit={this.onOverlayExit} onExited={this.onOverlayExited}>
                     <DropdownPanel ref={(el) => this.panel = el} appendTo={this.props.appendTo}
                         panelStyle={this.props.panelStyle} panelClassName={this.props.panelClassName}
                         scrollHeight={this.props.scrollHeight} filter={filterElement} onClick={this.onPanelClick}>

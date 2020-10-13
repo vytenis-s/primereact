@@ -252,6 +252,17 @@
     }
 }
 
+.datatable-scroll-demo {
+    .loading-text {
+        display: block;
+        background-color: #f1f1f1;
+        min-height: 19px;
+        animation: pulse 1s infinite ease-in-out;
+        text-indent: -99999px;
+        overflow: hidden;
+    }
+}
+
 .datatable-editing-demo {
     .editable-cells-table td.p-cell-editing {
         padding-top: 0;
@@ -304,5 +315,22 @@
     .row-accessories {
         background-color: rgba(0,0,0,.15) !important;
 
+    }
+}
+
+.datatable-rowgroup-demo {
+    .p-rowgroup-footer td {
+        font-weight: 700;
+    }
+
+    .p-rowgroup-header {
+        span {
+            font-weight: 700;
+        }
+
+        .p-row-toggler {
+            vertical-align: middle;
+            margin-right: .25rem;
+        }
     }
 }

@@ -1,15 +1,16 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import {InputText} from '../inputtext/InputText';
-import {Button} from '../button/Button';
+import { InputText } from '../inputtext/InputText';
+import { Button } from '../button/Button';
 import DomHandler from '../utils/DomHandler';
 import ObjectUtils from '../utils/ObjectUtils';
-import {AutoCompletePanel} from './AutoCompletePanel';
+import { AutoCompletePanel } from './AutoCompletePanel';
 import classNames from 'classnames';
-import {tip} from "../tooltip/Tooltip";
+import { tip } from '../tooltip/Tooltip';
 import UniqueComponentId from "../utils/UniqueComponentId";
 import { CSSTransition } from 'react-transition-group';
+import ConnectedOverlayScrollHandler from '../utils/ConnectedOverlayScrollHandler';
 
 export class AutoComplete extends Component {
 
@@ -31,6 +32,8 @@ export class AutoComplete extends Component {
         inputId: null,
         inputStyle: null,
         inputClassName: null,
+        panelClassName: null,
+        panelStyle: null,
         placeholder: null,
         readonly: false,
         disabled: false,
@@ -78,6 +81,8 @@ export class AutoComplete extends Component {
         inputId: PropTypes.string,
         inputStyle: PropTypes.object,
         inputClassName: PropTypes.string,
+        panelClassName: PropTypes.string,
+        panelStyle: PropTypes.object,
         placeholder: PropTypes.string,
         readonly: PropTypes.bool,
         disabled: PropTypes.bool,
@@ -129,7 +134,8 @@ export class AutoComplete extends Component {
         this.onOverlayEntered = this.onOverlayEntered.bind(this);
         this.onOverlayExit = this.onOverlayExit.bind(this);
 
-        this.listId = UniqueComponentId() + '_list';
+        this.id = this.props.id || UniqueComponentId();
+        this.listId = this.id + '_list';
     }
 
     onInputChange(event) {
@@ -214,7 +220,7 @@ export class AutoComplete extends Component {
                 preventDefault : () =>{},
                 target: {
                     name: this.props.name,
-                    id: this.props.id,
+                    id: this.id,
                     value: value
                 }
             });
@@ -263,10 +269,14 @@ export class AutoComplete extends Component {
 
     onOverlayEntered() {
         this.bindDocumentClickListener();
+        this.bindScrollListener();
+        this.bindResizeListener();
     }
 
     onOverlayExit() {
         this.unbindDocumentClickListener();
+        this.unbindScrollListener();
+        this.unbindResizeListener();
     }
 
     alignOverlay() {
@@ -490,6 +500,42 @@ export class AutoComplete extends Component {
         }
     }
 
+    bindScrollListener() {
+        if (!this.scrollHandler) {
+            this.scrollHandler = new ConnectedOverlayScrollHandler(this.container, () => {
+                if (this.state.overlayVisible) {
+                    this.hideOverlay();
+                }
+            });
+        }
+
+        this.scrollHandler.bindScrollListener();
+    }
+
+    unbindScrollListener() {
+        if (this.scrollHandler) {
+            this.scrollHandler.unbindScrollListener();
+        }
+    }
+
+    bindResizeListener() {
+        if (!this.resizeListener) {
+            this.resizeListener = () => {
+                if (this.state.overlayVisible) {
+                    this.hideOverlay();
+                }
+            };
+            window.addEventListener('resize', this.resizeListener);
+        }
+    }
+
+    unbindResizeListener() {
+        if (this.resizeListener) {
+            window.removeEventListener('resize', this.resizeListener);
+            this.resizeListener = null;
+        }
+    }
+
     isOutsideClicked(event) {
         return this.container && (this.overlay && this.overlay.element && !this.overlay.element.contains(event.target)) && !this.isInputClicked(event);
     }
@@ -535,6 +581,11 @@ export class AutoComplete extends Component {
 
     componentWillUnmount() {
         this.unbindDocumentClickListener();
+        this.unbindResizeListener();
+        if (this.scrollHandler) {
+            this.scrollHandler.destroy();
+            this.scrollHandler = null;
+        }
 
         if (this.tooltip) {
             this.tooltip.destroy();
@@ -630,7 +681,7 @@ export class AutoComplete extends Component {
 
     render() {
         let input, dropdown;
-        let className = classNames('p-autocomplete p-component', this.props.className, {
+        let className = classNames('p-autocomplete p-component p-inputwrapper', this.props.className, {
             'p-autocomplete-dd': this.props.dropdown,
             'p-autocomplete-multiple': this.props.multiple,
             'p-inputwrapper-filled': this.props.value,
@@ -648,7 +699,7 @@ export class AutoComplete extends Component {
         }
 
         return (
-            <span ref={(el) => this.container = el} id={this.props.id} style={this.props.style} className={className} aria-haspopup="listbox"
+            <span ref={(el) => this.container = el} id={this.id} style={this.props.style} className={className} aria-haspopup="listbox"
                   aria-expanded={this.state.overlayVisible} aria-owns={this.listId}>
                 {input}
                 {loader}
@@ -656,7 +707,8 @@ export class AutoComplete extends Component {
                 <CSSTransition classNames="p-connected-overlay" in={this.state.overlayVisible} timeout={{ enter: 120, exit: 100 }}
                     unmountOnExit onEnter={this.onOverlayEnter} onEntered={this.onOverlayEntered} onExit={this.onOverlayExit}>
                     <AutoCompletePanel ref={(el) => this.overlay = el} suggestions={this.props.suggestions} field={this.props.field} listId={this.listId}
-                            appendTo={this.props.appendTo} itemTemplate={this.props.itemTemplate} onItemClick={this.selectItem} ariaSelected={this.ariaSelected}/>
+                            appendTo={this.props.appendTo} itemTemplate={this.props.itemTemplate} onItemClick={this.selectItem} ariaSelected={this.ariaSelected}
+                            panelStyle={this.props.panelStyle} panelClassName={this.props.panelClassName}/>
                 </CSSTransition>
             </span>
         );

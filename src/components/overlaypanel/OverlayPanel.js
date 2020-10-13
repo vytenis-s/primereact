@@ -5,6 +5,8 @@ import classNames from 'classnames';
 import DomHandler from '../utils/DomHandler';
 import { CSSTransition } from 'react-transition-group';
 import { Ripple } from '../ripple/Ripple';
+import UniqueComponentId from '../utils/UniqueComponentId';
+import ConnectedOverlayScrollHandler from '../utils/ConnectedOverlayScrollHandler';
 
 export class OverlayPanel extends Component {
 
@@ -42,6 +44,8 @@ export class OverlayPanel extends Component {
         this.onEnter = this.onEnter.bind(this);
         this.onEntered = this.onEntered.bind(this);
         this.onExit = this.onExit.bind(this);
+
+        this.id = this.props.id || UniqueComponentId();
     }
 
     bindDocumentClickListener() {
@@ -62,6 +66,42 @@ export class OverlayPanel extends Component {
         if(this.documentClickListener) {
             document.removeEventListener('click', this.documentClickListener);
             this.documentClickListener = null;
+        }
+    }
+
+    bindScrollListener() {
+        if (!this.scrollHandler) {
+            this.scrollHandler = new ConnectedOverlayScrollHandler(this.target, () => {
+                if (this.state.visible) {
+                    this.hide();
+                }
+            });
+        }
+
+        this.scrollHandler.bindScrollListener();
+    }
+
+    unbindScrollListener() {
+        if (this.scrollHandler) {
+            this.scrollHandler.unbindScrollListener();
+        }
+    }
+
+    bindResizeListener() {
+        if (!this.resizeListener) {
+            this.resizeListener = () => {
+                if (this.state.visible) {
+                    this.hide();
+                }
+            };
+            window.addEventListener('resize', this.resizeListener);
+        }
+    }
+
+    unbindResizeListener() {
+        if (this.resizeListener) {
+            window.removeEventListener('resize', this.resizeListener);
+            this.resizeListener = null;
         }
     }
 
@@ -126,10 +166,14 @@ export class OverlayPanel extends Component {
 
     onEntered() {
         this.bindDocumentClickListener();
+        this.bindScrollListener();
+        this.bindResizeListener();
     }
 
     onExit() {
         this.unbindDocumentClickListener();
+        this.unbindScrollListener();
+        this.unbindResizeListener();
     }
 
     align() {
@@ -144,6 +188,11 @@ export class OverlayPanel extends Component {
 
     componentWillUnmount() {
         this.unbindDocumentClickListener();
+        this.unbindResizeListener();
+        if (this.scrollHandler) {
+            this.scrollHandler.destroy();
+            this.scrollHandler = null;
+        }
     }
 
     renderCloseIcon() {
@@ -166,7 +215,7 @@ export class OverlayPanel extends Component {
         return (
             <CSSTransition classNames="p-overlaypanel" in={this.state.visible} timeout={{ enter: 120, exit: 100 }}
                 unmountOnExit onEnter={this.onEnter} onEntered={this.onEntered} onExit={this.onExit}>
-                <div ref={el => this.container = el} id={this.props.id} className={className} style={this.props.style} onClick={this.onPanelClick}>
+                <div ref={el => this.container = el} id={this.id} className={className} style={this.props.style} onClick={this.onPanelClick}>
                     <div className="p-overlaypanel-content">
                         {this.props.children}
                     </div>

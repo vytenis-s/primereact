@@ -6,6 +6,8 @@ import {ColorPickerPanel} from './ColorPickerPanel';
 import {tip} from "../tooltip/Tooltip";
 import ObjectUtils from '../utils/ObjectUtils';
 import { CSSTransition } from 'react-transition-group';
+import UniqueComponentId from '../utils/UniqueComponentId';
+import ConnectedOverlayScrollHandler from '../utils/ConnectedOverlayScrollHandler';
 
 export class ColorPicker extends Component {
 
@@ -55,6 +57,8 @@ export class ColorPicker extends Component {
         this.onOverlayEnter = this.onOverlayEnter.bind(this);
         this.onOverlayEntered = this.onOverlayEntered.bind(this);
         this.onOverlayExit = this.onOverlayExit.bind(this);
+
+        this.id = this.props.id || UniqueComponentId();
     }
 
     onHueMousedown(event) {
@@ -174,7 +178,7 @@ export class ColorPicker extends Component {
                 preventDefault : () =>{},
                 target: {
                     name: this.props.name,
-                    id: this.props.id,
+                    id: this.id,
                     value: value
                 }
             })
@@ -226,10 +230,14 @@ export class ColorPicker extends Component {
 
     onOverlayEntered() {
         this.bindDocumentClickListener();
+        this.bindScrollListener();
+        this.bindResizeListener();
     }
 
     onOverlayExit() {
         this.unbindDocumentClickListener();
+        this.unbindScrollListener();
+        this.unbindResizeListener();
     }
 
     onInputClick() {
@@ -277,6 +285,42 @@ export class ColorPicker extends Component {
         if(this.documentClickListener) {
             document.removeEventListener('click', this.documentClickListener);
             this.documentClickListener = null;
+        }
+    }
+
+    bindScrollListener() {
+        if (!this.scrollHandler) {
+            this.scrollHandler = new ConnectedOverlayScrollHandler(this.container, () => {
+                if (this.state.overlayVisible) {
+                    this.hide();
+                }
+            });
+        }
+
+        this.scrollHandler.bindScrollListener();
+    }
+
+    unbindScrollListener() {
+        if (this.scrollHandler) {
+            this.scrollHandler.unbindScrollListener();
+        }
+    }
+
+    bindResizeListener() {
+        if (!this.resizeListener) {
+            this.resizeListener = () => {
+                if (this.state.overlayVisible) {
+                    this.hide();
+                }
+            };
+            window.addEventListener('resize', this.resizeListener);
+        }
+    }
+
+    unbindResizeListener() {
+        if (this.resizeListener) {
+            window.removeEventListener('resize', this.resizeListener);
+            this.resizeListener = null;
         }
     }
 
@@ -473,6 +517,11 @@ export class ColorPicker extends Component {
         this.unbindDocumentClickListener();
         this.unbindDocumentMouseMoveListener();
         this.unbindDocumentMouseUpListener();
+        this.unbindResizeListener();
+        if (this.scrollHandler) {
+            this.scrollHandler.destroy();
+            this.scrollHandler = null;
+        }
 
         if (this.tooltip) {
             this.tooltip.destroy();
@@ -562,7 +611,7 @@ export class ColorPicker extends Component {
         let input = this.renderInput();
 
         return (
-            <div ref={(el) => this.container = el} id={this.props.id} style={this.props.style} className={containerClassName}>
+            <div ref={(el) => this.container = el} id={this.id} style={this.props.style} className={containerClassName}>
                 {input}
                 <CSSTransition classNames="p-connected-overlay" in={this.props.inline || this.state.overlayVisible} timeout={{ enter: 120, exit: 100 }}
                     unmountOnExit onEnter={this.onOverlayEnter} onEntered={this.onOverlayEntered} onExit={this.onOverlayExit}>

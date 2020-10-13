@@ -28,6 +28,7 @@ export class TreeTable extends Component {
         paginatorTemplate: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown',
         paginatorLeft:null,
         paginatorRight: null,
+        paginatorDropdownAppendTo: null,
         pageLinkSize: 5,
         rowsPerPageOptions: null,
         currentPageReportTemplate: '({currentPage} of {totalPages})',
@@ -98,6 +99,7 @@ export class TreeTable extends Component {
         paginatorTemplate: PropTypes.string,
         paginatorLeft: PropTypes.any,
         paginatorRight: PropTypes.any,
+        paginatorDropdownAppendTo: PropTypes.any,
         pageLinkSize: PropTypes.number,
         rowsPerPageOptions: PropTypes.array,
         currentPageReportTemplate: PropTypes.string,
@@ -910,7 +912,7 @@ export class TreeTable extends Component {
             <Paginator first={this.getFirst()} rows={this.getRows()} pageLinkSize={this.props.pageLinkSize} className={className}
                     onPageChange={this.onPageChange} template={this.props.paginatorTemplate}
                     totalRecords={totalRecords} rowsPerPageOptions={this.props.rowsPerPageOptions} currentPageReportTemplate={this.props.currentPageReportTemplate}
-                    leftContent={this.props.paginatorLeft} rightContent={this.props.paginatorRight} alwaysShow={this.props.alwaysShowPaginator} />
+                    leftContent={this.props.paginatorLeft} rightContent={this.props.paginatorRight} alwaysShow={this.props.alwaysShowPaginator} dropdownAppendTo={this.props.paginatorDropdownAppendTo} />
         )
     }
 
@@ -952,7 +954,7 @@ export class TreeTable extends Component {
 
         return (
             <div className="p-treetable-wrapper">
-                <table style={this.props.tableStyle} className={this.props.tableClassName}  ref={el => this.table = el}>
+                <table style={this.props.tableStyle} className={this.props.tableClassName} ref={el => this.table = el}>
                     {header}
                     {footer}
                     {body}
@@ -991,7 +993,7 @@ export class TreeTable extends Component {
             'p-treetable-resizable': this.props.resizableColumns,
             'p-treetable-resizable-fit': (this.props.resizableColumns && this.props.columnResizeMode === 'fit'),
             'p-treetable-auto-layout': this.props.autoLayout
-        });
+        }, this.props.className);
         const table = this.renderTable(value);
         const totalRecords = this.getTotalRecords(value);
         const headerFacet = this.props.header && <div className="p-treetable-header">{this.props.header}</div>;
@@ -1004,7 +1006,7 @@ export class TreeTable extends Component {
         const reorderIndicatorDown = this.props.reorderableColumns && <span ref={el => this.reorderIndicatorDown = el} className="pi pi-arrow-up p-datatable-reorder-indicator-down" style={{position: 'absolute', display: 'none'}} />;
 
         return (
-            <div id={this.props.id} className={className} style={this.props.style} ref={el => this.container = el}>
+            <div id={this.props.id} className={className} style={this.props.style} ref={el => this.container = el} data-scrollselectors=".p-treetable-scrollable-body">
                 {loader}
                 {headerFacet}
                 {paginatorTop}

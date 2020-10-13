@@ -17,6 +17,7 @@ interface DropdownProps {
     filterMatchMode?: string;
     filterPlaceholder?: string;
     filterLocale?: string;
+    emptyFilterMessage?: any;
     editable?:boolean;
     placeholder?: string;
     required?: boolean;
@@ -25,6 +26,7 @@ interface DropdownProps {
     tabIndex?: number;
     autoFocus?: boolean;
     filterInputAutoFocus?: boolean;
+    resetFilterOnHide?: boolean;
     lazy?: boolean;
     panelClassName?: string;
     panelStyle?: object;

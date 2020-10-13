@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import DomHandler from '../utils/DomHandler';
 import { CSSTransition } from 'react-transition-group';
+import UniqueComponentId from '../utils/UniqueComponentId';
+import ConnectedOverlayScrollHandler from '../utils/ConnectedOverlayScrollHandler';
 
 export class SlideMenuSub extends Component {
 
@@ -153,7 +155,6 @@ export class SlideMenuSub extends Component {
         );
     }
 }
-
 export class SlideMenu extends Component {
 
     static defaultProps = {
@@ -205,6 +206,8 @@ export class SlideMenu extends Component {
         this.onEntered = this.onEntered.bind(this);
         this.onExit = this.onExit.bind(this);
         this.onExited = this.onExited.bind(this);
+
+        this.id = this.props.id || UniqueComponentId();
     }
 
     navigateForward() {
@@ -269,12 +272,14 @@ export class SlideMenu extends Component {
     onEntered() {
         this.bindDocumentClickListener();
         this.bindDocumentResizeListener();
+        this.bindScrollListener();
     }
 
     onExit() {
         this.target = null;
         this.unbindDocumentClickListener();
         this.unbindDocumentResizeListener();
+        this.unbindScrollListener();
     }
 
     onExited() {
@@ -323,6 +328,24 @@ export class SlideMenu extends Component {
         }
     }
 
+    bindScrollListener() {
+        if (!this.scrollHandler) {
+            this.scrollHandler = new ConnectedOverlayScrollHandler(this.target, (event) => {
+                if (this.state.visible) {
+                    this.hide(event);
+                }
+            });
+        }
+
+        this.scrollHandler.bindScrollListener();
+    }
+
+    unbindScrollListener() {
+        if (this.scrollHandler) {
+            this.scrollHandler.unbindScrollListener();
+        }
+    }
+
     componentDidUpdate(prevProps, prevState) {
         if (this.props.model !== prevProps.model) {
             this.setState({
@@ -334,6 +357,10 @@ export class SlideMenu extends Component {
     componentWillUnmount() {
         this.unbindDocumentClickListener();
         this.unbindDocumentResizeListener();
+        if (this.scrollHandler) {
+            this.scrollHandler.destroy();
+            this.scrollHandler = null;
+        }
     }
 
     renderElement() {
@@ -343,7 +370,7 @@ export class SlideMenu extends Component {
         return (
             <CSSTransition classNames="p-connected-overlay" in={!this.props.popup || this.state.visible} timeout={{ enter: 120, exit: 100 }}
                 unmountOnExit onEnter={this.onEnter} onEntered={this.onEntered} onExit={this.onExit} onExited={this.onExited}>
-                <div id={this.props.id} className={className} style={this.props.style} ref={el => this.container = el}>
+                <div id={this.id} className={className} style={this.props.style} ref={el => this.container = el}>
                     <div className="p-slidemenu-wrapper" style={{height: this.props.viewportHeight + 'px'}}>
                         <div className="p-slidemenu-content" ref={el => this.slideMenuContent = el}>
                             <SlideMenuSub model={this.props.model} root index={0} menuWidth={this.props.menuWidth} effectDuration={this.props.effectDuration}

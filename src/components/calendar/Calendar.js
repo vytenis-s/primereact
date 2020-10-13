@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import {InputText} from '../inputtext/InputText';
-import {Button} from '../button/Button';
-import {CalendarPanel} from './CalendarPanel';
+import { InputText } from '../inputtext/InputText';
+import { Button } from '../button/Button';
+import { CalendarPanel } from './CalendarPanel';
 import DomHandler from '../utils/DomHandler';
 import classNames from 'classnames';
-import {tip} from "../tooltip/Tooltip";
+import { tip } from '../tooltip/Tooltip';
 import { CSSTransition } from 'react-transition-group';
 import { Ripple } from '../ripple/Ripple';
+import UniqueComponentId from '../utils/UniqueComponentId';
+import ConnectedOverlayScrollHandler from '../utils/ConnectedOverlayScrollHandler';
 
 export class Calendar extends Component {
 
@@ -213,6 +215,8 @@ export class Calendar extends Component {
         this.onOverlayEntered = this.onOverlayEntered.bind(this);
         this.onOverlayExit = this.onOverlayExit.bind(this);
         this.reFocusInputField = this.reFocusInputField.bind(this);
+
+        this.id = this.props.id || UniqueComponentId();
     }
 
     componentDidMount() {
@@ -285,6 +289,10 @@ export class Calendar extends Component {
 
         this.unbindDocumentClickListener();
         this.unbindDocumentResizeListener();
+        if (this.scrollHandler) {
+            this.scrollHandler.destroy();
+            this.scrollHandler = null;
+        }
     }
 
     renderTooltip() {
@@ -1435,7 +1443,7 @@ export class Calendar extends Component {
                 preventDefault : () =>{},
                 target: {
                     name: this.props.name,
-                    id: this.props.id,
+                    id: this.id,
                     value: value
                 }
             });
@@ -1467,11 +1475,13 @@ export class Calendar extends Component {
     onOverlayEntered() {
         this.bindDocumentClickListener();
         this.bindDocumentResizeListener();
+        this.bindScrollListener();
     }
 
     onOverlayExit() {
         this.unbindDocumentClickListener();
         this.unbindDocumentResizeListener();
+        this.unbindScrollListener();
     }
 
     bindDocumentClickListener() {
@@ -1504,6 +1514,24 @@ export class Calendar extends Component {
         if (this.documentResizeListener) {
             window.removeEventListener('resize', this.documentResizeListener);
             this.documentResizeListener = null;
+        }
+    }
+
+    bindScrollListener() {
+        if (!this.scrollHandler) {
+            this.scrollHandler = new ConnectedOverlayScrollHandler(this.container, () => {
+                if (this.state.overlayVisible) {
+                    this.hideOverlay();
+                }
+            });
+        }
+
+        this.scrollHandler.bindScrollListener();
+    }
+
+    unbindScrollListener() {
+        if (this.scrollHandler) {
+            this.scrollHandler.unbindScrollListener();
         }
     }
 
@@ -2590,11 +2618,15 @@ export class Calendar extends Component {
     }
 
     renderMonths(monthsMetaData) {
+        const groups = monthsMetaData.map((monthMetaData, index) => {
+            return this.renderMonth(monthMetaData, index);
+        });
+
         return (
-            monthsMetaData.map((monthMetaData, index) => {
-                return this.renderMonth(monthMetaData, index);
-            })
-        );
+            <div className="p-datepicker-group-container">
+                {groups}
+            </div>
+        )
     }
 
     renderDateView() {
@@ -2876,7 +2908,7 @@ export class Calendar extends Component {
     }
 
     render() {
-        const className = classNames('p-calendar', this.props.className, {
+        const className = classNames('p-calendar p-inputwrapper', this.props.className, {
             'p-calendar-w-btn': this.props.showIcon,
             'p-calendar-timeonly': this.props.timeOnly,
             'p-inputwrapper-filled': this.props.value || (DomHandler.hasClass(this.inputElement, 'p-filled') && this.inputElement.value !== ''),
@@ -2898,7 +2930,7 @@ export class Calendar extends Component {
         const footer = this.renderFooter();
 
         return (
-            <span ref={(el) => this.container = el} id={this.props.id} className={className} style={this.props.style}>
+            <span ref={(el) => this.container = el} id={this.id} className={className} style={this.props.style}>
                 {input}
                 {button}
                 <CSSTransition classNames="p-connected-overlay" in={this.props.inline || this.state.overlayVisible} timeout={{ enter: 120, exit: 100 }}

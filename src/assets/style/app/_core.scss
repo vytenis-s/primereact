@@ -73,7 +73,6 @@ input[type="number"] {
     }
 }
 
-
 @keyframes pulse {
     0% {
         background-color: rgba(165, 165, 165, 0.1)
@@ -143,5 +142,25 @@ pre[class*="language-"] {
     &:hover {
         background-color: #c56a05;
         color: #ffffff;
+    }
+}
+
+.liveEditorSplitButton {
+    .p-splitbutton-defaultbutton {
+        .p-button-label {
+            display: none;
+        }
+    }
+}
+
+.liveEditorPanel {
+    .p-menuitem-link {
+        height: 38px;
+
+        img {
+            margin-left: -4px;
+            width: 20px;
+            height: 20px;
+        }
     }
 }

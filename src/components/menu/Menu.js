@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import DomHandler from '../utils/DomHandler';
 import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
+import UniqueComponentId from '../utils/UniqueComponentId';
+import ConnectedOverlayScrollHandler from '../utils/ConnectedOverlayScrollHandler';
 
 export class Menu extends Component {
 
@@ -43,6 +45,8 @@ export class Menu extends Component {
         this.onEnter = this.onEnter.bind(this);
         this.onEntered = this.onEntered.bind(this);
         this.onExit = this.onExit.bind(this);
+
+        this.id = this.props.id || UniqueComponentId();
     }
 
     onItemClick(event, item){
@@ -150,11 +154,13 @@ export class Menu extends Component {
 
     onEntered() {
         this.bindDocumentListeners();
+        this.bindScrollListener();
     }
 
     onExit() {
         this.target = null;
         this.unbindDocumentListeners();
+        this.unbindScrollListener();
     }
 
     bindDocumentListeners() {
@@ -179,10 +185,6 @@ export class Menu extends Component {
         }
     }
 
-    isOutsideClicked(event) {
-        return this.container && !(this.container.isSameNode(event.target) || this.container.contains(event.target));
-    }
-
     unbindDocumentListeners() {
         if(this.documentClickListener) {
             document.removeEventListener('click', this.documentClickListener);
@@ -195,8 +197,34 @@ export class Menu extends Component {
         }
     }
 
+    bindScrollListener() {
+        if (!this.scrollHandler) {
+            this.scrollHandler = new ConnectedOverlayScrollHandler(this.target, (event) => {
+                if (this.state.visible) {
+                    this.hide(event);
+                }
+            });
+        }
+
+        this.scrollHandler.bindScrollListener();
+    }
+
+    unbindScrollListener() {
+        if (this.scrollHandler) {
+            this.scrollHandler.unbindScrollListener();
+        }
+    }
+
+    isOutsideClicked(event) {
+        return this.container && !(this.container.isSameNode(event.target) || this.container.contains(event.target));
+    }
+
     componentWillUnmount() {
         this.unbindDocumentListeners();
+        if (this.scrollHandler) {
+            this.scrollHandler.destroy();
+            this.scrollHandler = null;
+        }
     }
 
     renderSubmenu(submenu, index) {
@@ -264,7 +292,7 @@ export class Menu extends Component {
             return (
                 <CSSTransition classNames="p-connected-overlay" in={this.state.visible} timeout={{ enter: 120, exit: 100 }}
                     unmountOnExit onEnter={this.onEnter} onEntered={this.onEntered} onExit={this.onExit}>
-                    <div id={this.props.id} className={className} style={this.props.style} ref={el => this.container = el}>
+                    <div id={this.id} className={className} style={this.props.style} ref={el => this.container = el}>
                         <ul className="p-menu-list p-reset" role="menu">
                             {menuitems}
                         </ul>

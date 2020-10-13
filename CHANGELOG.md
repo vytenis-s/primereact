@@ -1,5 +1,95 @@
 # Changelog
 
+## [5.0.1](https://github.com/primefaces/primereact/tree/5.0.1) (2020-10-12)
+
+[Full Changelog](https://github.com/primefaces/primereact/compare/5.0.0...5.0.1)
+
+**Implemented New Features and Enhancements:**
+
+- Soho Theme [\#1632](https://github.com/primefaces/primereact/issues/1632)
+- FluentUI Theme [\#1631](https://github.com/primefaces/primereact/issues/1631)
+- Accordion border radius visual on PrimeOne themes [\#1629](https://github.com/primefaces/primereact/issues/1629)
+- Galleria and Carousel highlight item visual improvement on PrimeOne Themes [\#1626](https://github.com/primefaces/primereact/issues/1626)
+- Add dropdownAppendTo property to Paginator [\#1622](https://github.com/primefaces/primereact/issues/1622)
+- Add paginatorDropdownAppendTo property to DataTable, TreeTable and DataView [\#1621](https://github.com/primefaces/primereact/issues/1621)
+- Tooltip doesn't close in scrollable containers [\#1607](https://github.com/primefaces/primereact/issues/1607)
+
+**Fixed bugs:**
+
+- Fullcalendar button styling issues [\#1633](https://github.com/primefaces/primereact/issues/1633)
+- TriStateCheckbox X icon not visible on Material themes [\#1630](https://github.com/primefaces/primereact/issues/1630)
+- TreeNode toggler is not readable on hover when highlighted on bootstrap theme [\#1628](https://github.com/primefaces/primereact/issues/1628)
+- Dropdown items throws a JS exception [\#1624](https://github.com/primefaces/primereact/issues/1624)
+- TypeScript applications cannot find the 'Tooltip' module [\#1618](https://github.com/primefaces/primereact/issues/1618)
+- InputNumber with spinner mode throws a JS exception [\#1614](https://github.com/primefaces/primereact/issues/1614)
+- inputNumber with numeric prefix is not working as expected [\#1613](https://github.com/primefaces/primereact/issues/1613)
+- Problems when typing or pasting numbers into InputNumber [\#1612](https://github.com/primefaces/primereact/issues/1612)
+
+## [5.0.0](https://github.com/primefaces/primereact/tree/5.0.0) (2020-10-01)
+
+[Full Changelog](https://github.com/primefaces/primereact/compare/5.0.0-rc.2...5.0.0)
+
+**Implemented New Features and Enhancements:**
+
+- Lighter Highlight Color for PrimeOne Themes [\#1605](https://github.com/primefaces/primereact/issues/1605)
+- Add template property support to MenuModel API [\#1597](https://github.com/primefaces/primereact/issues/1597)
+- Add buttonTemplate property to SplitButton [\#1596](https://github.com/primefaces/primereact/issues/1596)
+- Add headerTemplate property to AccordionTab on Accordion [\#1594](https://github.com/primefaces/primereact/issues/1594)
+- Add expandIcon and collapseIcon properties to Accordion [\#1593](https://github.com/primefaces/primereact/issues/1593)
+- Add id property to Password [\#1590](https://github.com/primefaces/primereact/issues/1590)
+- Improvement in behavior of components that have overlay panels in scrollable containers [\#1589](https://github.com/primefaces/primereact/issues/1589)
+- InputNumber feature - allow negative values [\#1585](https://github.com/primefaces/primereact/issues/1585)
+- Add panelClassName and panelStyle properties for appendable overlays [\#1459](https://github.com/primefaces/primereact/issues/1459)
+- TreeTable: expose the filter method for TypeScript [\#1435](https://github.com/primefaces/primereact/issues/1435)
+
+**Fixed bugs:**
+
+- Alignment issue on Scrollable TreeTable [\#1599](https://github.com/primefaces/primereact/issues/1599)
+- Alignment issue on Scrollable Datatable [\#1598](https://github.com/primefaces/primereact/issues/1598)
+- Button shows "&nbsp" text if the label property is empty [\#1595](https://github.com/primefaces/primereact/issues/1595)
+- InputNumber cannot set value when format property is false [\#1582](https://github.com/primefaces/primereact/issues/1582)
+- Carousel page prop not detecting changes to prop value. [\#1464](https://github.com/primefaces/primereact/issues/1464)
+- Pagination \(currentPageReportTemplate\) is not showing correct page no for first [\#1453](https://github.com/primefaces/primereact/issues/1453)
+- MultiSelect: error when selecting option with null value [\#1446](https://github.com/primefaces/primereact/issues/1446)
+- MultiSelect: warning in console when using string array as options [\#1445](https://github.com/primefaces/primereact/issues/1445)
+
+## [5.0.0-rc.2](https://github.com/primefaces/primereact/tree/5.0.0-rc.2) (2020-09-10)
+
+[Full Changelog](https://github.com/primefaces/primereact/compare/5.0.0-rc.1...5.0.0-rc.2)
+
+**Implemented New Features and Enhancements:**
+
+- Add resetFilterOnHide property to MultiSelect [\#1565](https://github.com/primefaces/primereact/issues/1565)
+- Add resetFilterOnHide property to Dropdown [\#1564](https://github.com/primefaces/primereact/issues/1564)
+- Add keyboard support to MultiSelect [\#1563](https://github.com/primefaces/primereact/issues/1563)
+- Improve SelectButton implementation [\#1561](https://github.com/primefaces/primereact/issues/1561)
+- Add optionDisabled property to SelectButton [\#1560](https://github.com/primefaces/primereact/issues/1560)
+- Add emptyFilterMessage property to MultiSelect [\#1556](https://github.com/primefaces/primereact/issues/1556)
+- Add emptyFilterMessage property to Dropdown [\#1554](https://github.com/primefaces/primereact/issues/1554)
+- Negative sign with InputNumber [\#1551](https://github.com/primefaces/primereact/issues/1551)
+- InputNumber: pasting doesn't work correctly [\#1549](https://github.com/primefaces/primereact/issues/1549)
+- InputGroup support for input components with wrappers [\#1548](https://github.com/primefaces/primereact/issues/1548)
+- Update PrimeFlex documentation to 2.0.0 [\#1542](https://github.com/primefaces/primereact/issues/1542)
+- Scrollable Table alignment improvement [\#1541](https://github.com/primefaces/primereact/issues/1541)
+- DataTable onRowClick executes when multiple selection mode is enabled and user clicks on selection checkbox column cell [\#1534](https://github.com/primefaces/primereact/issues/1534)
+- Add content property to Message component [\#1463](https://github.com/primefaces/primereact/issues/1463)
+- Add color property to ProgressBar [\#1457](https://github.com/primefaces/primereact/issues/1457)
+- NumberInput does not pass down validation attributes to input element. [\#1444](https://github.com/primefaces/primereact/issues/1444)
+
+**Fixed bugs:**
+
+- The left and right arrow keys not working on input elements inside Tree [\#1559](https://github.com/primefaces/primereact/issues/1559)
+- Items in PanelMenu are highlighted wrongly with Material dark themes [\#1557](https://github.com/primefaces/primereact/issues/1557)
+- Calendar misplaced layout if more than one month is shown [\#1553](https://github.com/primefaces/primereact/issues/1553)
+- inputNumber cannot set value bigger than 99.999 for an ES locale [\#1552](https://github.com/primefaces/primereact/issues/1552)
+- inputNumber with numeric prefix is not working as expected  [\#1550](https://github.com/primefaces/primereact/issues/1550)
+- Item selection does not work on Dropdown with scrollable panel [\#1544](https://github.com/primefaces/primereact/issues/1544)
+- Dialog with Long Content does not scroll in IE11 [\#1538](https://github.com/primefaces/primereact/issues/1538)
+- Pill Text not centered [\#1532](https://github.com/primefaces/primereact/issues/1532)
+- Ripple effect with typescript [\#1530](https://github.com/primefaces/primereact/issues/1530)
+- Component TreeTable doesn't added props className [\#1473](https://github.com/primefaces/primereact/issues/1473)
+- Dialog aria-labelledby references an unexisting id [\#1405](https://github.com/primefaces/primereact/issues/1405)
+
 ## [5.0.0-rc.1](https://github.com/primefaces/primereact/tree/5.0.0-rc.1) (2020-08-20)
 
 [Full Changelog](https://github.com/primefaces/primereact/compare/4.2.2...5.0.0-rc.1)
